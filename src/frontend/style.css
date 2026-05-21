@@ -782,6 +782,14 @@ tr:hover td {
 }
 
 /* ── RESPONSIVE MÓVIL ── */
+.hamburger {
+    display: none;
+}
+
+.mobile-logout {
+    display: none;
+}
+
 @media (max-width: 768px) {
     #sidebar {
         width: 100%;
