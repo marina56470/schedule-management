@@ -3,6 +3,13 @@ let token = localStorage.getItem('sf_token');
 let currentUser = JSON.parse(localStorage.getItem('sf_user') || 'null');
 let currentPage = 'dashboard';
 
+function toggleMenu() {
+  const nav = document.querySelector('nav');
+  nav.classList.toggle('open');
+}
+const _origNavigate = window.navigate;
+
+
 async function doLogin() {
   const email = document.getElementById('login-email').value;
   const password = document.getElementById('login-password').value;
@@ -122,6 +129,8 @@ function navigate(page) {
     conflicts: renderConflicts
   };
   if (renders[page]) renders[page]();
+
+  document.querySelector('nav')?.classList.remove('open');
 }
 
 let _allRows = [], _currentData = [], _cols = [];
@@ -192,6 +201,7 @@ function tableWrapper(innerHtml, count) {
     </div>`;
 }
 
+
 async function doCreate(endpoint, body) {
   try {
     await api(endpoint, { method: 'POST', body: JSON.stringify(body) });
@@ -210,6 +220,7 @@ async function doDelete(endpoint, id) {
     closeModal(); toast('Eliminado'); navigate(currentPage);
   } catch (e) { toast(e.message, 'error'); }
 }
+
 
 async function genericPage({ endpoint, cols, buildForm, parseForm: parseFn, addTitle, editTitle }) {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando...</div>';
@@ -240,6 +251,7 @@ async function genericPage({ endpoint, cols, buildForm, parseForm: parseFn, addT
       `<div class="empty-state"><p style="color:var(--danger)">${e.message}</p></div>`;
   }
 }
+
 
 async function dashboard() {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando estadísticas...</div>';
@@ -286,6 +298,7 @@ async function dashboard() {
   }
 }
 
+
 function renderTeachers() {
   genericPage({
     endpoint: '/teachers',
@@ -305,6 +318,7 @@ function renderTeachers() {
     addTitle: 'Nuevo Docente', editTitle: 'Editar Docente'
   });
 }
+
 
 function renderStudents() {
   genericPage({
@@ -342,6 +356,7 @@ function renderDepartments() {
   });
 }
 
+
 function renderSubjects() {
   genericPage({
     endpoint: '/subjects',
@@ -359,6 +374,7 @@ function renderSubjects() {
     addTitle: 'Nueva Materia', editTitle: 'Editar Materia'
   });
 }
+
 
 function renderCourses() {
   genericPage({
@@ -378,6 +394,7 @@ function renderCourses() {
   });
 }
 
+
 function renderPrograms() {
   genericPage({
     endpoint: '/academic-programs',
@@ -396,6 +413,7 @@ function renderPrograms() {
   });
 }
 
+
 function renderPeriods() {
   genericPage({
     endpoint: '/periods',
@@ -413,6 +431,7 @@ function renderPeriods() {
     addTitle: 'Nuevo Periodo', editTitle: 'Editar Periodo'
   });
 }
+
 
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const DAYS_EN = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -463,6 +482,7 @@ function parseScheduleForm() {
   return { teacher_id: fv('f_tc'), day_of_week: fv('f_dw'), start_time: fv('f_st'), end_time: fv('f_et'), classroom: fv('f_cl') };
 }
 
+
 async function renderAvailability() {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando...</div>';
   try {
@@ -507,6 +527,7 @@ function parseAvailForm() {
   return { teacher_id: fv('f_tc'), day_of_week: fv('f_dw'), start_time: fv('f_st'), end_time: fv('f_et') };
 }
 
+
 async function renderEnrollments() {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando...</div>';
   try {
@@ -547,6 +568,7 @@ function buildEnrollForm(students, courses) {
 function parseEnrollForm() {
   return { student_id: fv('f_st'), course_id: fv('f_co') };
 }
+
 
 async function renderConflicts() {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando...</div>';

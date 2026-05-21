@@ -30,6 +30,7 @@ body {
     display: flex;
 }
 
+/* ── SIDEBAR ── */
 #sidebar {
     width: 240px;
     min-height: 100vh;
@@ -177,7 +178,7 @@ nav {
     color: #fff;
 }
 
-
+/* ── MAIN ── */
 #main {
     margin-left: 240px;
     flex: 1;
@@ -212,6 +213,7 @@ nav {
     margin-top: 2px;
 }
 
+/* ── BUTTONS ── */
 .btn {
     padding: 9px 18px;
     border-radius: 8px;
@@ -261,7 +263,7 @@ nav {
     flex: 1;
 }
 
-
+/* ── LOGIN ── */
 #login-screen {
     position: fixed;
     inset: 0;
@@ -410,6 +412,7 @@ nav {
     display: none;
 }
 
+/* ── STAT CARDS ── */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -485,6 +488,7 @@ nav {
     font-weight: 500;
 }
 
+/* ── TABLE ── */
 .table-wrapper {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -552,6 +556,7 @@ tr:hover td {
     background: #f5f4ff;
 }
 
+/* ── BADGES ── */
 .badge {
     display: inline-flex;
     align-items: center;
@@ -585,6 +590,7 @@ tr:hover td {
     border: 1px solid #fde68a;
 }
 
+/* ── ACTION BUTTONS ── */
 .actions {
     display: flex;
     gap: 6px;
@@ -645,6 +651,7 @@ tr:hover td {
     font-size: 14px;
 }
 
+/* ── MODAL ── */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -690,7 +697,7 @@ tr:hover td {
     border-top: 1px solid var(--border);
 }
 
-
+/* ── TOAST ── */
 #toast {
     position: fixed;
     bottom: 24px;
@@ -724,7 +731,7 @@ tr:hover td {
     background: #fef2f2;
 }
 
-
+/* ── DASHBOARD MODULES ── */
 .dash-modules {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -772,4 +779,191 @@ tr:hover td {
     font-size: 12px;
     color: var(--text-muted);
     margin-top: 2px;
+}
+
+/* ── RESPONSIVE MÓVIL ── */
+@media (max-width: 768px) {
+    #sidebar {
+        width: 100%;
+        height: auto;
+        min-height: unset;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: unset;
+        flex-direction: row;
+        align-items: center;
+        padding: 0;
+        z-index: 200;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .3);
+    }
+
+    .sidebar-logo {
+        padding: 12px 16px;
+        border-bottom: none;
+        border-right: 1px solid rgba(255, 255, 255, .1);
+        flex-shrink: 0;
+    }
+
+    .sidebar-logo h1 {
+        font-size: 16px;
+    }
+
+    .sidebar-logo span {
+        display: none;
+    }
+
+    .sidebar-user {
+        padding: 8px 12px;
+        border-bottom: none;
+        border-right: 1px solid rgba(255, 255, 255, .1);
+        flex-shrink: 0;
+    }
+
+    .user-info {
+        display: none;
+    }
+
+    nav {
+        display: none;
+        position: fixed;
+        top: 56px;
+        left: 0;
+        right: 0;
+        background: #0f0f1a;
+        padding: 8px 0;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+        z-index: 300;
+        max-height: calc(100vh - 56px);
+        overflow-y: auto;
+    }
+
+    nav.open {
+        display: block;
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+
+    /* Botón hamburguesa */
+    .hamburger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: auto;
+        margin-right: 12px;
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, .1);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #fff;
+    }
+
+    .hamburger svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Botón cerrar sesión dentro del nav en móvil */
+    .mobile-logout {
+        display: block;
+        margin: 8px 16px;
+        padding: 10px;
+        background: rgba(255, 255, 255, .08);
+        border: 1px solid rgba(255, 255, 255, .15);
+        border-radius: 8px;
+        color: rgba(255, 255, 255, .75);
+        font-size: 13px;
+        cursor: pointer;
+        text-align: center;
+        font-family: 'DM Sans', sans-serif;
+        width: calc(100% - 32px);
+    }
+
+    #main {
+        margin-left: 0;
+        margin-top: 56px;
+    }
+
+    #topbar {
+        padding: 14px 16px;
+    }
+
+    .page-title {
+        font-size: 16px;
+    }
+
+    #content {
+        padding: 16px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .dash-modules {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .module-card {
+        padding: 14px;
+    }
+
+    .module-desc {
+        display: none;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 500px;
+    }
+
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .table-header input {
+        width: 100%;
+    }
+
+    /* Login responsive */
+    .login-split {
+        flex-direction: column;
+    }
+
+    .login-form-side {
+        width: 100%;
+        padding: 32px 24px;
+        order: 1;
+    }
+
+    .login-image-side {
+        height: 200px;
+        order: 0;
+    }
+
+    .modal {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 400px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .dash-modules {
+        grid-template-columns: 1fr;
+    }
 }
