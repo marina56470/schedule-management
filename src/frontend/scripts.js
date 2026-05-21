@@ -7,6 +7,8 @@ function toggleMenu() {
   const nav = document.querySelector('nav');
   nav.classList.toggle('open');
 }
+
+
 const _origNavigate = window.navigate;
 
 
@@ -58,7 +60,6 @@ function initApp() {
   navigate('dashboard');
 }
 
-
 async function api(path, opts = {}) {
   const res = await fetch(`${API}${path}`, {
     ...opts,
@@ -73,7 +74,7 @@ async function api(path, opts = {}) {
   return data;
 }
 
-
+// ── TOAST ──
 function toast(msg, type = 'success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -81,6 +82,7 @@ function toast(msg, type = 'success') {
   setTimeout(() => t.className = '', 3000);
 }
 
+// ── MODAL ──
 function openModal(title, body, actions) {
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-body').innerHTML = body;
@@ -94,21 +96,22 @@ document.getElementById('modal-overlay').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeModal();
 });
 
+// ── NAVIGATION ──
 function navigate(page) {
   currentPage = page;
   const titles = {
-    dashboard: ['Inicio', 'Resumen general del sistema'],
-    teachers: ['Docentes', 'Gestión de docentes'],
-    students: ['Estudiantes', 'Gestión de estudiantes'],
-    departments: ['Departamentos', 'Gestión de departamentos'],
-    subjects: ['Materias', 'Gestión de materias'],
-    courses: ['Cursos', 'Gestión de cursos'],
-    programs: ['Programas Académicos', 'Gestión de programas'],
-    schedules: ['Horarios', 'Gestión de horarios de clases'],
-    availability: ['Disponibilidad Docente', 'Franjas horarias disponibles'],
-    periods: ['Periodos Académicos', 'Gestión de periodos'],
-    enrollments: ['Matrículas', 'Gestión de matrículas'],
-    conflicts: ['Conflictos', 'Conflictos de horario detectados'],
+    dashboard:    ['Inicio',             'Resumen general del sistema'],
+    teachers:     ['Docentes',              'Gestión de docentes'],
+    students:     ['Estudiantes',           'Gestión de estudiantes'],
+    departments:  ['Departamentos',         'Gestión de departamentos'],
+    subjects:     ['Materias',              'Gestión de materias'],
+    courses:      ['Cursos',                'Gestión de cursos'],
+    programs:     ['Programas Académicos',  'Gestión de programas'],
+    schedules:    ['Horarios',              'Gestión de horarios de clases'],
+    availability: ['Disponibilidad Docente','Franjas horarias disponibles'],
+    periods:      ['Periodos Académicos',   'Gestión de periodos'],
+    enrollments:  ['Matrículas',            'Gestión de matrículas'],
+    conflicts:    ['Conflictos',            'Conflictos de horario detectados'],
   };
   const [title, sub] = titles[page] || ['', ''];
   document.getElementById('page-title').textContent = title;
@@ -129,10 +132,11 @@ function navigate(page) {
     conflicts: renderConflicts
   };
   if (renders[page]) renders[page]();
-
+  // Cierra menú móvil al navegar
   document.querySelector('nav')?.classList.remove('open');
 }
 
+// ── TABLE HELPERS ──
 let _allRows = [], _currentData = [], _cols = [];
 let _editFnG = null, _deleteFnG = null, _extraBtn = null, _addFn = null;
 let _parseFormFn = null;
@@ -142,9 +146,9 @@ function fv(id) { return document.getElementById(id)?.value || ''; }
 
 const svgPlus = `<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>`;
 
-function handleEdit(i) { if (_editFnG) _editFnG(_currentData[i]); }
+function handleEdit(i)   { if (_editFnG)   _editFnG(_currentData[i]); }
 function handleDelete(i) { if (_deleteFnG) _deleteFnG(_currentData[i]); }
-function handleAdd() { if (_addFn) _addFn(); }
+function handleAdd()     { if (_addFn)     _addFn(); }
 
 function renderTable(cols, rows, onEdit, onDelete, extraBtn) {
   if (!rows.length) return `
@@ -160,6 +164,7 @@ function renderTable(cols, rows, onEdit, onDelete, extraBtn) {
   const rowsHtml = rows.map((r, i) => {
     const cells = cols.map(c => {
       let val = r[c.key] ?? '—';
+      if (c.key === 'active') val = r[c.key] === true ? 'Activo' : 'Inactivo';
       if (c.badge) val = `<span class="badge ${c.badge(r)}">${val}</span>`;
       return `<td>${val}</td>`;
     }).join('');
@@ -169,7 +174,7 @@ function renderTable(cols, rows, onEdit, onDelete, extraBtn) {
     return `<tr>
       ${cells}
       <td><div class="actions">
-        ${onEdit ? `<button class="btn-icon edit" title="Editar"    onclick="handleEdit(${i})"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>` : ''}
+        ${onEdit   ? `<button class="btn-icon edit" title="Editar"    onclick="handleEdit(${i})"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>` : ''}
         ${onDelete ? `<button class="btn-icon del"  title="Eliminar"  onclick="handleDelete(${i})"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>` : ''}
         ${extra}
       </div></td>
@@ -201,7 +206,7 @@ function tableWrapper(innerHtml, count) {
     </div>`;
 }
 
-
+// ── CRUD ──
 async function doCreate(endpoint, body) {
   try {
     await api(endpoint, { method: 'POST', body: JSON.stringify(body) });
@@ -221,7 +226,7 @@ async function doDelete(endpoint, id) {
   } catch (e) { toast(e.message, 'error'); }
 }
 
-
+// ── GENERIC PAGE ──
 async function genericPage({ endpoint, cols, buildForm, parseForm: parseFn, addTitle, editTitle }) {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando...</div>';
   try {
@@ -252,7 +257,7 @@ async function genericPage({ endpoint, cols, buildForm, parseForm: parseFn, addT
   }
 }
 
-
+// ── DASHBOARD ──
 async function dashboard() {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando estadísticas...</div>';
   try {
@@ -260,16 +265,16 @@ async function dashboard() {
       api('/teachers'), api('/students'), api('/schedules'), api('/conflicts')
     ]);
     const modules = [
-      { page: 'teachers', icon: '👨‍🏫', color: '#6c63ff', label: 'Docentes', desc: 'Gestiona el personal docente' },
-      { page: 'students', icon: '🎓', color: '#ff6584', label: 'Estudiantes', desc: 'Administra estudiantes' },
-      { page: 'schedules', icon: '📅', color: '#43e97b', label: 'Horarios', desc: 'Visualiza y crea horarios' },
-      { page: 'departments', icon: '🏛️', color: '#ffa502', label: 'Departamentos', desc: 'Organización académica' },
-      { page: 'subjects', icon: '📚', color: '#6c63ff', label: 'Materias', desc: 'Asignaturas disponibles' },
-      { page: 'courses', icon: '📋', color: '#ff6584', label: 'Cursos', desc: 'Cursos activos' },
-      { page: 'periods', icon: '🗓️', color: '#43e97b', label: 'Periodos', desc: 'Periodos académicos' },
-      { page: 'availability', icon: '⏰', color: '#ffa502', label: 'Disponibilidad', desc: 'Franjas de docentes' },
-      { page: 'enrollments', icon: '📝', color: '#6c63ff', label: 'Matrículas', desc: 'Inscripciones de cursos' },
-      { page: 'conflicts', icon: '⚠️', color: '#ff4757', label: 'Conflictos', desc: 'Conflictos detectados' },
+      { page: 'teachers',     icon: '👨‍🏫', color: '#6c63ff', label: 'Docentes',      desc: 'Gestiona el personal docente' },
+      { page: 'students',     icon: '🎓',  color: '#ff6584', label: 'Estudiantes',    desc: 'Administra estudiantes' },
+      { page: 'schedules',    icon: '📅',  color: '#43e97b', label: 'Horarios',       desc: 'Visualiza y crea horarios' },
+      { page: 'departments',  icon: '🏛️',  color: '#ffa502', label: 'Departamentos',  desc: 'Organización académica' },
+      { page: 'subjects',     icon: '📚',  color: '#6c63ff', label: 'Materias',       desc: 'Asignaturas disponibles' },
+      { page: 'courses',      icon: '📋',  color: '#ff6584', label: 'Cursos',         desc: 'Cursos activos' },
+      { page: 'periods',      icon: '🗓️',  color: '#43e97b', label: 'Periodos',       desc: 'Periodos académicos' },
+      { page: 'availability', icon: '⏰',  color: '#ffa502', label: 'Disponibilidad', desc: 'Franjas de docentes' },
+      { page: 'enrollments',  icon: '📝',  color: '#6c63ff', label: 'Matrículas',     desc: 'Inscripciones de cursos' },
+      { page: 'conflicts',    icon: '⚠️',  color: '#ff4757', label: 'Conflictos',     desc: 'Conflictos detectados' },
     ];
     document.getElementById('content').innerHTML = `
       <div class="stats-grid">
@@ -298,157 +303,166 @@ async function dashboard() {
   }
 }
 
-
+// ── TEACHERS ──
 function renderTeachers() {
   genericPage({
     endpoint: '/teachers',
     cols: [
-      { key: 'first_name', label: 'Nombre' },
-      { key: 'last_name', label: 'Apellido' },
-      { key: 'email', label: 'Email' },
-      { key: 'phone', label: 'Teléfono' },
-      { key: 'active', label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
+      { key: 'first_name',     label: 'Nombre' },
+      { key: 'last_name',      label: 'Apellido' },
+      { key: 'email',          label: 'Email' },
+      { key: 'phone',          label: 'Teléfono' },
+      { key: 'contract_type',  label: 'Contrato' },
     ],
     buildForm: r => `
-      <div class="form-group"><label>Nombre</label><input id="f_fn" value="${r?.first_name || ''}" /></div>
-      <div class="form-group"><label>Apellido</label><input id="f_ln" value="${r?.last_name || ''}" /></div>
-      <div class="form-group"><label>Email</label><input id="f_em" type="email" value="${r?.email || ''}" /></div>
-      <div class="form-group"><label>Teléfono</label><input id="f_ph" value="${r?.phone || ''}" /></div>`,
-    parseForm: () => ({ first_name: fv('f_fn'), last_name: fv('f_ln'), email: fv('f_em'), phone: fv('f_ph') }),
+      <div class="form-group"><label>Nombre</label><input id="f_fn" value="${r?.first_name||''}" /></div>
+      <div class="form-group"><label>Apellido</label><input id="f_ln" value="${r?.last_name||''}" /></div>
+      <div class="form-group"><label>Email</label><input id="f_em" type="email" value="${r?.email||''}" /></div>
+      <div class="form-group"><label>Teléfono</label><input id="f_ph" value="${r?.phone||''}" /></div>
+      <div class="form-group"><label>Tipo de contrato</label>
+        <select id="f_ct">
+          <option value="Tiempo Completo" ${r?.contract_type==='Tiempo Completo'?'selected':''}>Tiempo Completo</option>
+          <option value="Medio Tiempo" ${r?.contract_type==='Medio Tiempo'?'selected':''}>Medio Tiempo</option>
+          <option value="Cátedra" ${r?.contract_type==='Cátedra'?'selected':''}>Cátedra</option>
+        </select>
+      </div>`,
+    parseForm: () => ({ first_name: fv('f_fn'), last_name: fv('f_ln'), email: fv('f_em'), phone: fv('f_ph'), contract_type: fv('f_ct') }),
     addTitle: 'Nuevo Docente', editTitle: 'Editar Docente'
   });
 }
 
-
+// ── STUDENTS ──
 function renderStudents() {
   genericPage({
     endpoint: '/students',
     cols: [
       { key: 'first_name', label: 'Nombre' },
-      { key: 'last_name', label: 'Apellido' },
-      { key: 'email', label: 'Email' },
-      { key: 'student_code', label: 'Código' },
-      { key: 'active', label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
+      { key: 'last_name',  label: 'Apellido' },
+      { key: 'email',      label: 'Email' },
+      { key: 'program_id', label: 'Programa ID' },
+      { key: 'active',     label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
     ],
     buildForm: r => `
-      <div class="form-group"><label>Nombre</label><input id="f_fn" value="${r?.first_name || ''}" /></div>
-      <div class="form-group"><label>Apellido</label><input id="f_ln" value="${r?.last_name || ''}" /></div>
-      <div class="form-group"><label>Email</label><input id="f_em" type="email" value="${r?.email || ''}" /></div>
-      <div class="form-group"><label>Código estudiantil</label><input id="f_sc" value="${r?.student_code || ''}" /></div>`,
-    parseForm: () => ({ first_name: fv('f_fn'), last_name: fv('f_ln'), email: fv('f_em'), student_code: fv('f_sc') }),
+      <div class="form-group"><label>Nombre</label><input id="f_fn" value="${r?.first_name||''}" /></div>
+      <div class="form-group"><label>Apellido</label><input id="f_ln" value="${r?.last_name||''}" /></div>
+      <div class="form-group"><label>Email</label><input id="f_em" type="email" value="${r?.email||''}" /></div>
+      <div class="form-group"><label>Programa ID</label><input id="f_pr" type="number" value="${r?.program_id||''}" /></div>`,
+    parseForm: () => ({ first_name: fv('f_fn'), last_name: fv('f_ln'), email: fv('f_em'), program_id: parseInt(fv('f_pr')) }),
     addTitle: 'Nuevo Estudiante', editTitle: 'Editar Estudiante'
   });
 }
 
+// ── DEPARTMENTS ──
 function renderDepartments() {
   genericPage({
     endpoint: '/departments',
     cols: [
-      { key: 'name', label: 'Nombre' },
+      { key: 'name',        label: 'Nombre' },
       { key: 'description', label: 'Descripción' },
-      { key: 'active', label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
+      { key: 'active',      label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
     ],
     buildForm: r => `
-      <div class="form-group"><label>Nombre</label><input id="f_nm" value="${r?.name || ''}" /></div>
-      <div class="form-group"><label>Descripción</label><textarea id="f_ds">${r?.description || ''}</textarea></div>`,
+      <div class="form-group"><label>Nombre</label><input id="f_nm" value="${r?.name||''}" /></div>
+      <div class="form-group"><label>Descripción</label><textarea id="f_ds">${r?.description||''}</textarea></div>`,
     parseForm: () => ({ name: fv('f_nm'), description: fv('f_ds') }),
     addTitle: 'Nuevo Departamento', editTitle: 'Editar Departamento'
   });
 }
 
-
+// ── SUBJECTS ──
 function renderSubjects() {
   genericPage({
     endpoint: '/subjects',
     cols: [
-      { key: 'name', label: 'Nombre' },
-      { key: 'code', label: 'Código' },
+      { key: 'name',    label: 'Nombre' },
+      { key: 'code',    label: 'Código' },
       { key: 'credits', label: 'Créditos' },
-      { key: 'active', label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
+      { key: 'active',  label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
     ],
     buildForm: r => `
-      <div class="form-group"><label>Nombre</label><input id="f_nm" value="${r?.name || ''}" /></div>
-      <div class="form-group"><label>Código</label><input id="f_cd" value="${r?.code || ''}" /></div>
-      <div class="form-group"><label>Créditos</label><input id="f_cr" type="number" value="${r?.credits || ''}" /></div>`,
+      <div class="form-group"><label>Nombre</label><input id="f_nm" value="${r?.name||''}" /></div>
+      <div class="form-group"><label>Código</label><input id="f_cd" value="${r?.code||''}" /></div>
+      <div class="form-group"><label>Créditos</label><input id="f_cr" type="number" value="${r?.credits||''}" /></div>`,
     parseForm: () => ({ name: fv('f_nm'), code: fv('f_cd'), credits: parseInt(fv('f_cr')) }),
     addTitle: 'Nueva Materia', editTitle: 'Editar Materia'
   });
 }
 
-
+// ── COURSES ──
 function renderCourses() {
   genericPage({
     endpoint: '/courses',
     cols: [
-      { key: 'name', label: 'Nombre' },
-      { key: 'code', label: 'Código' },
-      { key: 'semester', label: 'Semestre' },
-      { key: 'active', label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
+      { key: 'group_name',   label: 'Grupo' },
+      { key: 'subject_id',   label: 'Materia ID' },
+      { key: 'period_id',    label: 'Periodo ID' },
+      { key: 'max_capacity', label: 'Capacidad' },
+      { key: 'active',       label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
     ],
     buildForm: r => `
-      <div class="form-group"><label>Nombre</label><input id="f_nm" value="${r?.name || ''}" /></div>
-      <div class="form-group"><label>Código</label><input id="f_cd" value="${r?.code || ''}" /></div>
-      <div class="form-group"><label>Semestre</label><input id="f_sm" value="${r?.semester || ''}" /></div>`,
-    parseForm: () => ({ name: fv('f_nm'), code: fv('f_cd'), semester: fv('f_sm') }),
+      <div class="form-group"><label>Grupo</label><input id="f_gn" value="${r?.group_name||''}" /></div>
+      <div class="form-group"><label>Materia ID</label><input id="f_si" type="number" value="${r?.subject_id||''}" /></div>
+      <div class="form-group"><label>Periodo ID</label><input id="f_pi" type="number" value="${r?.period_id||''}" /></div>
+      <div class="form-group"><label>Capacidad máxima</label><input id="f_mc" type="number" value="${r?.max_capacity||''}" /></div>`,
+    parseForm: () => ({ group_name: fv('f_gn'), subject_id: parseInt(fv('f_si')), period_id: parseInt(fv('f_pi')), max_capacity: parseInt(fv('f_mc')) }),
     addTitle: 'Nuevo Curso', editTitle: 'Editar Curso'
   });
 }
 
-
+// ── PROGRAMS ──
 function renderPrograms() {
   genericPage({
     endpoint: '/academic-programs',
     cols: [
-      { key: 'name', label: 'Nombre' },
-      { key: 'code', label: 'Código' },
+      { key: 'name',               label: 'Nombre' },
+      { key: 'code',               label: 'Código' },
       { key: 'duration_semesters', label: 'Duración (sem)' },
-      { key: 'active', label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
+      { key: 'active',             label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
     ],
     buildForm: r => `
-      <div class="form-group"><label>Nombre</label><input id="f_nm" value="${r?.name || ''}" /></div>
-      <div class="form-group"><label>Código</label><input id="f_cd" value="${r?.code || ''}" /></div>
-      <div class="form-group"><label>Duración (semestres)</label><input id="f_dur" type="number" value="${r?.duration_semesters || ''}" /></div>`,
+      <div class="form-group"><label>Nombre</label><input id="f_nm" value="${r?.name||''}" /></div>
+      <div class="form-group"><label>Código</label><input id="f_cd" value="${r?.code||''}" /></div>
+      <div class="form-group"><label>Duración (semestres)</label><input id="f_dur" type="number" value="${r?.duration_semesters||''}" /></div>`,
     parseForm: () => ({ name: fv('f_nm'), code: fv('f_cd'), duration_semesters: parseInt(fv('f_dur')) }),
     addTitle: 'Nuevo Programa', editTitle: 'Editar Programa'
   });
 }
 
-
+// ── PERIODS ──
 function renderPeriods() {
   genericPage({
     endpoint: '/periods',
     cols: [
-      { key: 'name', label: 'Nombre' },
-      { key: 'start_date', label: 'Inicio' },
-      { key: 'end_date', label: 'Fin' },
+      { key: 'name',   label: 'Nombre' },
       { key: 'active', label: 'Estado', badge: r => r.active ? 'badge-active' : 'badge-inactive' },
     ],
     buildForm: r => `
-      <div class="form-group"><label>Nombre</label><input id="f_nm" value="${r?.name || ''}" /></div>
-      <div class="form-group"><label>Fecha inicio</label><input id="f_sd" type="date" value="${r?.start_date?.slice(0, 10) || ''}" /></div>
-      <div class="form-group"><label>Fecha fin</label><input id="f_ed" type="date" value="${r?.end_date?.slice(0, 10) || ''}" /></div>`,
-    parseForm: () => ({ name: fv('f_nm'), start_date: fv('f_sd'), end_date: fv('f_ed') }),
+      <div class="form-group"><label>Nombre</label><input id="f_nm" value="${r?.name||''}" /></div>`,
+    parseForm: () => ({ name: fv('f_nm') }),
     addTitle: 'Nuevo Periodo', editTitle: 'Editar Periodo'
   });
 }
 
-
-const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-const DAYS_EN = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+// ── SCHEDULES ──
+const DAYS    = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const DAYS_EN = ['monday','tuesday','wednesday','thursday','friday','saturday'];
 
 async function renderSchedules() {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando...</div>';
   try {
     const [schedules, teachers] = await Promise.all([api('/schedules'), api('/teachers')]);
     _allRows = schedules; _currentData = schedules; _extraBtn = null;
+    const teacherMap = {};
+    teachers.forEach(t => teacherMap[t.id] = `${t.first_name} ${t.last_name}`);
+    schedules.forEach(s => s._teacher_name = teacherMap[s.teacher_id] || s.teacher_id);
     _cols = [
-      { key: 'teacher_id', label: 'Docente ID' },
-      { key: 'day_of_week', label: 'Día' },
-      { key: 'start_time', label: 'Inicio' },
-      { key: 'end_time', label: 'Fin' },
-      { key: 'classroom', label: 'Aula' },
+      { key: '_teacher_name', label: 'Docente' },
+      { key: 'day_of_week',   label: 'Día' },
+      { key: 'start_time',    label: 'Inicio' },
+      { key: 'end_time',      label: 'Fin' },
+      { key: 'classroom',     label: 'Aula' },
     ];
-    _editFnG = r => openModal('Editar Horario', buildScheduleForm(r, teachers),
+    _editFnG   = r => openModal('Editar Horario', buildScheduleForm(r, teachers),
       `<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
        <button class="btn btn-primary" onclick="doUpdate('/schedules','${r.id}',parseScheduleForm())">Guardar</button>`);
     _deleteFnG = r => openModal('Confirmar',
@@ -462,39 +476,42 @@ async function renderSchedules() {
       `<button class="btn btn-primary" onclick="handleAdd()">${svgPlus} Agregar</button>`;
     document.getElementById('content').innerHTML =
       tableWrapper(renderTable(_cols, schedules, _editFnG, _deleteFnG, null), schedules.length);
-  } catch (e) {
+  } catch(e) {
     document.getElementById('content').innerHTML =
       `<div class="empty-state"><p style="color:var(--danger)">${e.message}</p></div>`;
   }
 }
 
 function buildScheduleForm(r, teachers) {
-  const tOpts = teachers.map(t => `<option value="${t.id}" ${r?.teacher_id === t.id ? 'selected' : ''}>${t.first_name} ${t.last_name}</option>`).join('');
-  const dayOpts = DAYS_EN.map((d, i) => `<option value="${d}" ${r?.day_of_week === d ? 'selected' : ''}>${DAYS[i]}</option>`).join('');
+  const tOpts   = teachers.map(t => `<option value="${t.id}" ${r?.teacher_id===t.id?'selected':''}>${t.first_name} ${t.last_name}</option>`).join('');
+  const dayOpts = DAYS_EN.map((d,i) => `<option value="${d}" ${r?.day_of_week===d?'selected':''}>${DAYS[i]}</option>`).join('');
   return `
     <div class="form-group"><label>Docente</label><select id="f_tc"><option value="">Seleccionar...</option>${tOpts}</select></div>
     <div class="form-group"><label>Día</label><select id="f_dw"><option value="">Seleccionar...</option>${dayOpts}</select></div>
-    <div class="form-group"><label>Hora inicio</label><input id="f_st" type="time" value="${r?.start_time || ''}" /></div>
-    <div class="form-group"><label>Hora fin</label><input id="f_et" type="time" value="${r?.end_time || ''}" /></div>
-    <div class="form-group"><label>Aula</label><input id="f_cl" value="${r?.classroom || ''}" /></div>`;
+    <div class="form-group"><label>Hora inicio</label><input id="f_st" type="time" value="${r?.start_time||''}" /></div>
+    <div class="form-group"><label>Hora fin</label><input id="f_et" type="time" value="${r?.end_time||''}" /></div>
+    <div class="form-group"><label>Aula</label><input id="f_cl" value="${r?.classroom||''}" /></div>`;
 }
 function parseScheduleForm() {
   return { teacher_id: fv('f_tc'), day_of_week: fv('f_dw'), start_time: fv('f_st'), end_time: fv('f_et'), classroom: fv('f_cl') };
 }
 
-
+// ── AVAILABILITY ──
 async function renderAvailability() {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando...</div>';
   try {
     const [avail, teachers] = await Promise.all([api('/availability'), api('/teachers')]);
     _allRows = avail; _currentData = avail; _extraBtn = null;
+    const teacherMap = {};
+    teachers.forEach(t => teacherMap[t.id] = `${t.first_name} ${t.last_name}`);
+    avail.forEach(a => a._teacher_name = teacherMap[a.teacher_id] || a.teacher_id);
     _cols = [
-      { key: 'teacher_id', label: 'Docente ID' },
-      { key: 'day_of_week', label: 'Día' },
-      { key: 'start_time', label: 'Inicio' },
-      { key: 'end_time', label: 'Fin' },
+      { key: '_teacher_name', label: 'Docente' },
+      { key: 'day_of_week',   label: 'Día' },
+      { key: 'start_time',    label: 'Inicio' },
+      { key: 'end_time',      label: 'Fin' },
     ];
-    _editFnG = r => openModal('Editar Disponibilidad', buildAvailForm(r, teachers),
+    _editFnG   = r => openModal('Editar Disponibilidad', buildAvailForm(r, teachers),
       `<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
        <button class="btn btn-primary" onclick="doUpdate('/availability','${r.id}',parseAvailForm())">Guardar</button>`);
     _deleteFnG = r => openModal('Confirmar',
@@ -508,26 +525,26 @@ async function renderAvailability() {
       `<button class="btn btn-primary" onclick="handleAdd()">${svgPlus} Agregar</button>`;
     document.getElementById('content').innerHTML =
       tableWrapper(renderTable(_cols, avail, _editFnG, _deleteFnG, null), avail.length);
-  } catch (e) {
+  } catch(e) {
     document.getElementById('content').innerHTML =
       `<div class="empty-state"><p style="color:var(--danger)">${e.message}</p></div>`;
   }
 }
 
 function buildAvailForm(r, teachers) {
-  const tOpts = teachers.map(t => `<option value="${t.id}" ${r?.teacher_id === t.id ? 'selected' : ''}>${t.first_name} ${t.last_name}</option>`).join('');
-  const dayOpts = DAYS_EN.map((d, i) => `<option value="${d}" ${r?.day_of_week === d ? 'selected' : ''}>${DAYS[i]}</option>`).join('');
+  const tOpts   = teachers.map(t => `<option value="${t.id}" ${r?.teacher_id===t.id?'selected':''}>${t.first_name} ${t.last_name}</option>`).join('');
+  const dayOpts = DAYS_EN.map((d,i) => `<option value="${d}" ${r?.day_of_week===d?'selected':''}>${DAYS[i]}</option>`).join('');
   return `
     <div class="form-group"><label>Docente</label><select id="f_tc"><option value="">Seleccionar...</option>${tOpts}</select></div>
     <div class="form-group"><label>Día</label><select id="f_dw">${dayOpts}</select></div>
-    <div class="form-group"><label>Hora inicio</label><input id="f_st" type="time" value="${r?.start_time || ''}" /></div>
-    <div class="form-group"><label>Hora fin</label><input id="f_et" type="time" value="${r?.end_time || ''}" /></div>`;
+    <div class="form-group"><label>Hora inicio</label><input id="f_st" type="time" value="${r?.start_time||''}" /></div>
+    <div class="form-group"><label>Hora fin</label><input id="f_et" type="time" value="${r?.end_time||''}" /></div>`;
 }
 function parseAvailForm() {
   return { teacher_id: fv('f_tc'), day_of_week: fv('f_dw'), start_time: fv('f_st'), end_time: fv('f_et') };
 }
 
-
+// ── ENROLLMENTS ──
 async function renderEnrollments() {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando...</div>';
   try {
@@ -536,11 +553,11 @@ async function renderEnrollments() {
     ]);
     _allRows = enrollments; _currentData = enrollments; _extraBtn = null;
     _cols = [
-      { key: 'student_id', label: 'Estudiante ID' },
-      { key: 'course_id', label: 'Curso ID' },
-      { key: 'enrolled_at', label: 'Fecha matrícula' },
+      { key: 'student_id',  label: 'Estudiante ID' },
+      { key: 'course_id',   label: 'Curso ID' },
+      { key: 'created_at',  label: 'Fecha matrícula', fmt: r => r.created_at ? new Date(r.created_at).toLocaleDateString('es-CO') : '—' },
     ];
-    _editFnG = null;
+    _editFnG   = null;
     _deleteFnG = r => openModal('Confirmar',
       `<p style="color:var(--text-muted);font-size:14px">¿Eliminar matrícula?</p>`,
       `<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
@@ -552,7 +569,7 @@ async function renderEnrollments() {
       `<button class="btn btn-primary" onclick="handleAdd()">${svgPlus} Agregar</button>`;
     document.getElementById('content').innerHTML =
       tableWrapper(renderTable(_cols, enrollments, null, _deleteFnG, null), enrollments.length);
-  } catch (e) {
+  } catch(e) {
     document.getElementById('content').innerHTML =
       `<div class="empty-state"><p style="color:var(--danger)">${e.message}</p></div>`;
   }
@@ -560,7 +577,7 @@ async function renderEnrollments() {
 
 function buildEnrollForm(students, courses) {
   const sOpts = students.map(s => `<option value="${s.id}">${s.first_name} ${s.last_name}</option>`).join('');
-  const cOpts = courses.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  const cOpts = courses.map(c  => `<option value="${c.id}">${c.group_name || c.id}</option>`).join('');
   return `
     <div class="form-group"><label>Estudiante</label><select id="f_st"><option value="">Seleccionar...</option>${sOpts}</select></div>
     <div class="form-group"><label>Curso</label><select id="f_co"><option value="">Seleccionar...</option>${cOpts}</select></div>`;
@@ -569,34 +586,30 @@ function parseEnrollForm() {
   return { student_id: fv('f_st'), course_id: fv('f_co') };
 }
 
-
+// ── CONFLICTS ──
 async function renderConflicts() {
   document.getElementById('content').innerHTML = '<div class="loading">Cargando...</div>';
   try {
     const conflicts = await api('/conflicts');
     _allRows = conflicts; _currentData = conflicts;
     _cols = [
-      { key: 'description', label: 'Descripción' },
-      { key: 'type', label: 'Tipo', badge: () => 'badge-orange' },
-      { key: 'active', label: 'Estado', badge: r => r.active ? 'badge-inactive' : 'badge-active' },
+      { key: 'conflict_type',  label: 'Tipo', badge: () => 'badge-orange' },
+      { key: 'schedule_id_1',  label: 'Horario 1' },
+      { key: 'schedule_id_2',  label: 'Horario 2' },
+      { key: 'active',         label: 'Estado', badge: r => r.active ? 'badge-inactive' : 'badge-active' },
     ];
-    _editFnG = null;
+    _editFnG   = null;
     _deleteFnG = null;
-    _extraBtn = {
+    _extraBtn  = {
       label: 'Resolver',
       icon: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`,
       fn: 'resolveConflict'
     };
-    _addFn = () => openModal('Reportar Conflicto', `
-      <div class="form-group"><label>Descripción</label><textarea id="f_ds"></textarea></div>
-      <div class="form-group"><label>Tipo</label><input id="f_tp" placeholder="horario, aula, etc." /></div>`,
-      `<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-       <button class="btn btn-primary" onclick="doCreate('/conflicts',{description:fv('f_ds'),type:fv('f_tp')})">Reportar</button>`);
-    document.getElementById('topbar-actions').innerHTML =
-      `<button class="btn btn-primary" onclick="handleAdd()">${svgPlus} Reportar</button>`;
+    _addFn = null;
+    document.getElementById('topbar-actions').innerHTML = '';
     document.getElementById('content').innerHTML =
       tableWrapper(renderTable(_cols, conflicts, null, null, _extraBtn), conflicts.length);
-  } catch (e) {
+  } catch(e) {
     document.getElementById('content').innerHTML =
       `<div class="empty-state"><p style="color:var(--danger)">${e.message}</p></div>`;
   }
@@ -606,9 +619,10 @@ async function resolveConflict(r) {
   try {
     await api(`/conflicts/${r.id}/resolve`, { method: 'PATCH' });
     toast('Conflicto resuelto'); navigate('conflicts');
-  } catch (e) { toast(e.message, 'error'); }
+  } catch(e) { toast(e.message, 'error'); }
 }
 
+// ── INIT ──
 if (token && currentUser) {
   initApp();
 } else {
